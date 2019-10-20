@@ -1,0 +1,11 @@
+{
+  "name": "nodejs-rest-api",
+  "version": "1.0.0",
+  "description": "Backend for Bootcamp course API",
+  "main": "server.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
