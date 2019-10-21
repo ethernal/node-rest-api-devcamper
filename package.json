@@ -7,5 +7,8 @@
   "private": true,
   "devDependencies": {
     "nodemon": "^1.19.4"
+  },
+  "scripts": {
+    "dev": "nodemon server.js"
   }
 }
