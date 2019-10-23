@@ -8,12 +8,13 @@ dotenv.config({ path: './config/config.env' });
 const app = express();
 
 app.get('/', (req, res) => {
-  res
-    .status(400)
-    .send({
-      success: false,
-      error: 'Please include all required parameters in the request.',
-    });
+  res.status(200).send({
+    success: true,
+    error: null,
+    data: {
+      id: 1,
+    },
+  });
 });
 
 const PORT = process.env.PORT || 5000;
