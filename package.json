@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production node server",
+    "lint:fix": "eslint server.js --fix",
     "dev": "nodemon server"
   },
   "dependencies": {
