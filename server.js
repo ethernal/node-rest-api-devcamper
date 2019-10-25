@@ -14,6 +14,9 @@ const bootcamps = require(`./routes/bootcamps`);
 
 const app = express();
 
+// Body parser - allows to log request body data to the console from the server so we do not get undefined when invoking: console.log(req.body);
+app.use(express.json());
+
 // Dev Logging middleware
 if (process.env.NODE_ENV === `development`) app.use(morgan(`dev`));
 
