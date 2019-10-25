@@ -2,6 +2,7 @@ const express = require(`express`);
 const dotenv = require(`dotenv`);
 const morgan = require(`morgan`);
 const colors = require(`colors`);
+const errorHandler = require(`./middleware/error`);
 const connectDB = require(`./config/db`);
 //Load ENV variables
 dotenv.config({ path: `./config/config.env` });
@@ -22,8 +23,11 @@ if (process.env.NODE_ENV === `development`) app.use(morgan(`dev`));
 
 // Mount routes
 app.use(`/api/v1/bootcamps`, bootcamps);
-const PORT = process.env.PORT || 5000;
 
+// Apply middleware AFTER the routes are loaded as loading middleware earlier will make it unable to catch the errors
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(
     `App running in ${process.env.NODE_ENV} mode on port ${PORT}!`.green.bold
