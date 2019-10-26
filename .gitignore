@@ -1,4 +1,4 @@
 node_modules
 temp
 config.env
-.vscode/settings.json
+.vscode
