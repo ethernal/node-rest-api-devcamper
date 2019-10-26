@@ -7,7 +7,20 @@ const geocoder = require("../utils/geocoder");
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  const bootcamps = await Bootcamp.find(req.query);
+  let query;
+
+  let queryString = JSON.stringify(req.query);
+
+  // Regexp matches globally (`/g` - does not stop processing at first instance) words (\b \b - word boundary) from list of (gt, gte...)
+  // Match will replace all matching occurrence with same occurrence but with added '$' sign so that it works as MongoDB function
+  queryString = queryString.replace(
+    /\b(gt|gte|gt|gte|lt|lte|in)\b/g,
+    match => `$${match}`
+  );
+
+  query = Bootcamp.find(JSON.parse(queryString));
+
+  const bootcamps = await query;
   res.status(200).json({
     success: true,
     count: bootcamps.length,
