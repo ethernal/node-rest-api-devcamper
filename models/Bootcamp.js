@@ -1,4 +1,7 @@
 const mongoose = require(`mongoose`);
+const slugify = require(`slugify`);
+const geocoder = require(`../utils/geocoder`);
+const asyncHandler = require("../middleware/async");
 
 const BootcampSchema = new mongoose.Schema({
   name: {
@@ -97,5 +100,35 @@ const BootcampSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// You need to use function keyword instead of arrow functions as `function` has different scope that is needed for this kind of middleware.
+
+BootcampSchema.pre(`save`, function(next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// Geocode & create location field
+BootcampSchema.pre(
+  "save",
+  asyncHandler(async function(next) {
+    const loc = await geocoder.geocode(this.address);
+    this.location = {
+      type: "Point",
+      coordinates: [loc[0].longitude, loc[0].latitude],
+      formattedAddress: loc[0].formattedAddress,
+      street: loc[0].streetName,
+      city: loc[0].city,
+      state: loc[0].stateCode,
+      zipcode: loc[0].zipcode,
+      country: loc[0].countryCode,
+    };
+
+    // Do not save address in DB
+    //this.address = undefined;
+
+    next();
+  })
+);
 
 module.exports = mongoose.model(`Bootcamp`, BootcampSchema);
