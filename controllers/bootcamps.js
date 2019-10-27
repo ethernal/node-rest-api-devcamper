@@ -9,7 +9,15 @@ const geocoder = require("../utils/geocoder");
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
   let query;
 
-  let queryString = JSON.stringify(req.query);
+  const requestQuery = { ...req.query };
+
+  //Exclude fields from query
+  const removeFields = ["select", "sort"];
+
+  removeFields.forEach(param => delete requestQuery[param]);
+
+  //Create Query String from req.query JSON object to manipulate it later
+  let queryString = JSON.stringify(requestQuery);
 
   // Regexp matches globally (`/g` - does not stop processing at first instance) words (\b \b - word boundary) from list of (gt, gte...)
   // Match will replace all matching occurrence with same occurrence but with added '$' sign so that it works as MongoDB function
@@ -20,6 +28,14 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
   query = Bootcamp.find(JSON.parse(queryString));
 
+  // Select fields only if select was passed to the query (note that we removed select from a copy object but not from the oryginal one)
+  if (req.query.select) {
+    const fields = req.query.select.replace(",", " ");
+    // Add Mongoose select fields to the query that will be sent to the DB, this will return only the selected fields
+    query = query.select(fields);
+  }
+
+  // Execurte Query
   const bootcamps = await query;
   res.status(200).json({
     success: true,
