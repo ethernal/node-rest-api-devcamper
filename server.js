@@ -12,6 +12,7 @@ connectDB();
 
 // Route Files
 const bootcamps = require(`./routes/bootcamps`);
+const courses = require(`./routes/courses`);
 
 const app = express();
 
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === `development`) app.use(morgan(`dev`));
 
 // Mount routes
 app.use(`/api/v1/bootcamps`, bootcamps);
+app.use(`/api/v1/courses`, courses);
 
 // Apply middleware AFTER the routes are loaded as loading middleware earlier will make it unable to catch the errors
 app.use(errorHandler);
