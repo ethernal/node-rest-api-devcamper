@@ -26,7 +26,10 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     match => `$${match}`
   );
 
-  query = Bootcamp.find(JSON.parse(queryString));
+  //TODO: read more on populate
+  // Add the field courses to all Bootcamp models.
+  // If there are no courses in virtual fields the property will be empty.
+  query = Bootcamp.find(JSON.parse(queryString)).populate("courses");
 
   // Select fields only if select was passed to the query (note that we removed select from a copy object but not from the oryginal one)
   if (req.query.select) {
@@ -133,13 +136,17 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      Private
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+  // Note that findByIdAndDelete will not trigger pre('remove') middleware
+  const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
     );
   }
+
+  bootcamp.remove();
+
   return res.status(200).json({
     success: true,
     msg: `Deleted bootcamp ${req.params.id}`,
