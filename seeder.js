@@ -32,23 +32,15 @@ const bootcamps = JSON.parse(
 
 // Import into DB
 
-const importData = async () => {
+const importData = () => {
   try {
-    await Bootcamp.create(bootcamps);
-    console.log("Data imported".green.inverse);
-    mongoose.disconnect();
-    console.log(`MongoDB disconnected.`.green.inverse);
-    process.exit();
+    console.log("Importing data...".white.inverse);
+
+    return Bootcamp.create(bootcamps).then(
+      console.log(`Data imported`.green.inverse)
+    );
   } catch (error) {
-    mongoose.disconnect();
-    if (error.name === `HttpError` && error.code === `EAI_AGAIN`) {
-      console.warn(`Could not connect to GeoCoder Provider.`.yellow.inverse);
-      console.error(`Data was imported.`.green.inverse);
-    } else {
-      console.error(error);
-    }
-    console.log(`MongoDB disconnected.`.green.inverse);
-    process.exit();
+    console.warn(error);
   }
 };
 
