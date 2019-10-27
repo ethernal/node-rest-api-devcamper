@@ -4,7 +4,9 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
 
   // Log for dev
-  console.error(err);
+  console.error(`Error name: ${err.name}`.red.inverse);
+  console.error(`Error: ${err.message}`.red.inverse);
+  console.error(error);
 
   // Mongoose bad ObjectId
   if (err.name === `CastError`) {
@@ -34,7 +36,7 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(error.statusCode || 500).json({
     success: false,
-    error: error.message.trim() || `Server Error returned no message`,
+    error: error.message || `Server Error returned no message`,
   });
 };
 
