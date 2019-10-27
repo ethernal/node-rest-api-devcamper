@@ -12,8 +12,8 @@
     "start": "NODE_ENV=production node server",
     "lint:fix": "eslint server.js --fix",
     "dev": "nodemon server",
-    "seed:destroy": "node seeder -d",
-    "seed:create": "node seeder -i"
+    "data:destroy": "node seeder -d",
+    "data:import": "node seeder -i"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

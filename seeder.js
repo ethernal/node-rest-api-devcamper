@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: `./config/config.env` });
 
 const Bootcamp = require("./models/Bootcamp");
+const Course = require("./models/Course");
 
 const dbConnectionOptions = {
   connectTimeoutMS: 1000,
@@ -29,16 +30,23 @@ console.log(
 const bootcamps = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/bootcamps.json`, `utf-8`)
 );
+const courses = JSON.parse(
+  fs.readFileSync(`${__dirname}/_data/courses.json`, `utf-8`)
+);
 
 // Import into DB
 
-const importData = () => {
+const importData = async () => {
   try {
     console.log("Importing data...".white.inverse);
 
-    return Bootcamp.create(bootcamps).then(
-      console.log(`Data imported`.green.inverse)
-    );
+    await Bootcamp.create(bootcamps);
+    console.log(`Bootcamps imported`.green.inverse);
+    await Course.create(courses);
+    console.log(`Courses imported`.green.inverse);
+    await mongoose.disconnect();
+    console.log(`MongoDB disconnected.`.green.inverse);
+    process.exit();
   } catch (error) {
     console.warn(error);
   }
@@ -49,8 +57,10 @@ const importData = () => {
 const deleteData = async () => {
   try {
     await Bootcamp.deleteMany();
-    console.log("Data deleted".red.inverse);
-    mongoose.disconnect();
+    console.log("Bootcaps deleted".red.inverse);
+    await Course.deleteMany();
+    console.log("Courses deleted".red.inverse);
+    await mongoose.disconnect();
     console.log(`MongoDB disconnected.`.green.inverse);
     process.exit();
   } catch (error) {
