@@ -4,6 +4,7 @@ const {
   getCourse,
   addCourse,
   updateCourse,
+  deleteCourse,
 } = require(`../controllers/courses`);
 
 // mergeParams:true is requires if re-routing is supposed to work properly
@@ -20,6 +21,7 @@ router
 router
   .route(`/:id`)
   .get(getCourse)
-  .put(updateCourse);
+  .put(updateCourse)
+  .delete(deleteCourse);
 
 module.exports = router;
