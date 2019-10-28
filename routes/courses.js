@@ -1,5 +1,10 @@
 const express = require(`express`);
-const { getCourses, getCourse, addCourse } = require(`../controllers/courses`);
+const {
+  getCourses,
+  getCourse,
+  addCourse,
+  updateCourse,
+} = require(`../controllers/courses`);
 
 // mergeParams:true is requires if re-routing is supposed to work properly
 // it merges the URL parameters
@@ -12,6 +17,9 @@ router
   .route(`/`)
   .get(getCourses)
   .post(addCourse);
-router.route(`/:id`).get(getCourse);
+router
+  .route(`/:id`)
+  .get(getCourse)
+  .put(updateCourse);
 
 module.exports = router;
