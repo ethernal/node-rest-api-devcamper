@@ -1,10 +1,8 @@
 const fs = require("fs");
 const mongoose = require("mongoose");
-const colors = require("colors");
 const dotenv = require("dotenv");
 
 dotenv.config({ path: `./config/config.env` });
-
 const Bootcamp = require("./models/Bootcamp");
 const Course = require("./models/Course");
 
@@ -48,7 +46,7 @@ const importData = async () => {
     console.log(`MongoDB disconnected.`.green.inverse);
     process.exit();
   } catch (error) {
-    console.warn(error);
+    console.error(error);
   }
 };
 
