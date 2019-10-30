@@ -22,8 +22,9 @@ const app = express();
 app.use(express.json());
 
 // Dev Logging middleware
-if (process.env.NODE_ENV === `development`) app.use(morgan(`dev`));
-
+if (process.env.NODE_ENV === `development`) {
+  app.use(morgan(`dev`));
+}
 // File uploading middleware
 app.use(fileupload);
 
