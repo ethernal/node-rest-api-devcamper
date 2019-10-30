@@ -2,6 +2,7 @@ const Bootcamp = require(`../models/Bootcamp`);
 const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
 const geocoder = require("../utils/geocoder");
+const path = require("path");
 
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
@@ -191,5 +192,64 @@ exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
     msg: `Found bootcamps with search area radius.`,
     count: bootcamps.length,
     data: bootcamps,
+  });
+});
+
+// @desc        Upload photo for bootcamp
+// @route       PUT /api/v1/bootcamps/:id/photo
+// @access      Private
+exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
+  // Note that findByIdAndDelete will not trigger pre('remove') middleware
+  const bootcamp = await Bootcamp.findById(req.params.id);
+
+  if (!bootcamp) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+    );
+  }
+
+  if (!req.files) {
+    return next(new ErrorResponse(`Please upload a file`, 400));
+  }
+
+  const file = req.files.file;
+
+  // make sure it is a photo
+  if (!file.mimetype.startsWith(`image`)) {
+    return next(
+      new ErrorResponse(
+        `Please upload an image file instead of ${file.mimetype}`,
+        400
+      )
+    );
+  }
+
+  //set a limit for file upload
+
+  if (file.size > process.env.MAX_FILE_UPLOAD) {
+    return next(
+      new ErrorResponse(
+        `Please upload an image smaller than ${process.env.MAX_FILE_UPLOAD}. You tried to upload ${file.size}`,
+        400
+      )
+    );
+  }
+
+  // create custom filename
+
+  file.name = `photo_${bootcamp.id}${path.parse(file.name).ext}`;
+
+  file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+    if (err) {
+      console.log(err);
+      return next(new ErrorResponse(`Problem with file upload`, 500));
+    }
+
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
+    return res.status(200).json({
+      success: true,
+      msg: `Uploaded the photo to ${req.params.id}`,
+      data: file.name,
+    });
   });
 });
