@@ -34,7 +34,7 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 exports.createBootcamp = asyncHandler(async (req, res, next) => {
   // Add user to request.body
   // Since this route is protected and requires user to be logged in, value of req.user.id MUST be valid
-  require.body.user = req.user.id;
+  req.body.user = req.user.id;
 
   // Check if user already created a bootcamp
 
