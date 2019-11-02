@@ -35,6 +35,6 @@ router
   .put(updateBootcamp)
   .delete(deleteBootcamp);
 
-router.route(`/:id/photo`).put(updateBootcamp);
+router.route(`/:id/photo`).put(bootcampPhotoUpload);
 
 module.exports = router;
