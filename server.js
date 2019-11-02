@@ -15,6 +15,7 @@ connectDB();
 // Route Files
 const bootcamps = require(`./routes/bootcamps`);
 const courses = require(`./routes/courses`);
+const auth = require(`./routes/auth`);
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, `public`)));
 // Mount routes
 app.use(`/api/v1/bootcamps`, bootcamps);
 app.use(`/api/v1/courses`, courses);
+app.use(`/api/v1/auth`, auth);
 
 // Apply middleware AFTER the routes are loaded as loading middleware earlier will make it unable to catch the errors
 app.use(errorHandler);
