@@ -46,7 +46,7 @@ UserSchema.pre("save", async function(next) {
   next();
 });
 
-// Sign JWT and return
+// Sign TOKEN and return
 
 UserSchema.methods.getSignedToken = function() {
   return jwt.sign({ id: this._id }, process.env.TOKEN_SECRET, {
@@ -54,4 +54,8 @@ UserSchema.methods.getSignedToken = function() {
   });
 };
 
+// Validate user entered password to haashed password in the database
+UserSchema.methods.validatePassword = async function(submittedPassword) {
+  return await bcrypt.compare(submittedPassword, this.password);
+};
 module.exports = mongoose.model(`User`, UserSchema);
