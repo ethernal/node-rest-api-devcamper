@@ -49,11 +49,43 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Invalid credentials`, 401));
   }
 
+  sendTokenResponse(user, 200, res);
+});
+
+// Get token from the model, create a cookie and send response
+
+const sendTokenResponse = (user, statusCode, res) => {
   // create token
   const token = user.getSignedToken();
 
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.TOKEN_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  // Enable Secure Cookies in Production environment only as dev env. will not have HTTPS
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.secure = true;
+  }
+  res
+    .status(statusCode)
+    .cookie("token", token, cookieOptions)
+    .json({
+      success: true,
+      token,
+    });
+};
+
+// @desc        Get Current logged in user
+// @route       GET /api/v1/auth/me
+// @access      Private
+exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
   res.status(200).json({
     success: true,
-    token,
+    data: user,
   });
 });
