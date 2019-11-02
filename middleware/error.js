@@ -3,6 +3,9 @@ const ErrorResponse = require("../utils/errorResponse");
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
 
+  // This must be included as message object is not copied from the err object on spread
+  error.message = err.message;
+
   // Log for dev
   console.error(`Error name: ${err.name}`.red.inverse);
   console.error(`Error: ${err.message}`.red.inverse);
