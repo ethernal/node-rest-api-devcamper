@@ -6,6 +6,7 @@ const path = require(`path`);
 const errorHandler = require(`./middleware/error`);
 const connectDB = require(`./config/db`);
 const fileupload = require(`express-fileupload`);
+const cookieParser = require(`cookie-parser`);
 //Load ENV variables
 dotenv.config({ path: `./config/config.env` });
 
@@ -21,6 +22,8 @@ const app = express();
 
 // Body parser - allows to log request body data to the console from the server so we do not get undefined when invoking: console.log(req.body);
 app.use(express.json());
+
+app.use(cookieParser());
 
 // Dev Logging middleware
 if (process.env.NODE_ENV === `development`) {
