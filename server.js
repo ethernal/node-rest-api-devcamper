@@ -11,6 +11,7 @@ const mongoSanitize = require(`express-mongo-sanitize`);
 const helmet = require(`helmet`);
 const xssClean = require(`xss-clean`);
 const hpp = require(`hpp`);
+const rateLimit = require(`express-rate-limit`);
 //Load ENV variables
 dotenv.config({ path: `./config/config.env` });
 
@@ -57,6 +58,15 @@ app.use(hpp());
 /**
  * END of security enhancements
  */
+
+// Setup API rate limit
+
+const rateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+});
+
+app.use(rateLimiter);
 
 //Set static folder
 app.use(express.static(path.join(__dirname, `public`)));
