@@ -12,7 +12,7 @@ const {
 const Course = require(`../models/Course`);
 const advancedResults = require(`../middleware/advancedResults`);
 
-// mergeParams:true is requires if re-routing is supposed to work properly
+// mergeParams:true is required if re-routing is supposed to work properly
 // it merges the URL parameters
 const router = express.Router({ mergeParams: true });
 
