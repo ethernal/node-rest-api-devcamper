@@ -37,8 +37,15 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-
 UserSchema.pre("save", async function(next) {
+  // this can run when we save user data ex. when we create a reset password token but...
+  // if password was not modified move to next
+  // and do not try to encrypt the password
+  if (!this.isModified("password")) {
+    next();
+  }
+
+  // encrypt the password on user save / creation but only if password field was modified.
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -56,4 +63,21 @@ UserSchema.methods.getSignedToken = function() {
 UserSchema.methods.validatePassword = async function(submittedPassword) {
   return await bcrypt.compare(submittedPassword, this.password);
 };
+
+// Generate and hash password token
+UserSchema.methods.getResetPasswordToken = function() {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  // Hash token and setup resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash("sha3-256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Set Expiration time for password reset token to 30 minutes
+  this.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+
+  return resetToken;
+};
+
 module.exports = mongoose.model(`User`, UserSchema);
