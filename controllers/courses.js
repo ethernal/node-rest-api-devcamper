@@ -57,6 +57,7 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 exports.addCourse = asyncHandler(async (req, res, next) => {
   const bootcampId = req.params.bootcampId;
   req.body.bootcamp = bootcampId;
+  req.body.user = req.user.id;
 
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
@@ -66,6 +67,17 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
     );
   }
   const beforeCreate = await Course.countDocuments();
+
+  // Only allow Bootcamp owner to create Courses
+  // bootcamp.user is an ObjectID so we need to parse it to string for comparison
+  if (bootcamp.user.toString() != req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} is NOT authorized to add a course to the bootcamp ${req.params.id}. Only an owner ${bootcamp.user} of the Bootcamp can modify it`,
+        401
+      )
+    );
+  }
 
   // Add new course to the bootcamp
   const course = await Course.create(req.body);
@@ -93,6 +105,17 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     );
   }
 
+  // Only allow Course owner to update the Course
+  // course.user is an ObjectID so we need to parse it to string for comparison
+  if (course.user.toString() != req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} is NOT authorized to update a course ${req.params.id}. Only an owner ${course.user} of the Course can modify it`,
+        401
+      )
+    );
+  }
+
   course = await Course.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
@@ -114,6 +137,17 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
   if (!course) {
     return next(
       new ErrorResponse(`No course found with the id of: ${id}`, 404)
+    );
+  }
+
+  // Only allow Course owner to delete the Course
+  // course.user is an ObjectID so we need to parse it to string for comparison
+  if (course.user.toString() != req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} is NOT authorized to DELETE a course ${req.params.id}. Only an owner ${course.user} of the Course can modify it`,
+        401
+      )
     );
   }
 
