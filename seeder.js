@@ -80,7 +80,7 @@ const deleteData = async () => {
     console.log("Users deleted".red.inverse);
 
     await Review.deleteMany();
-    console.log("Users deleted".red.inverse);
+    console.log("Reviews deleted".red.inverse);
 
     await mongoose.disconnect();
     console.log(`MongoDB disconnected.`.green.inverse);
