@@ -3,6 +3,7 @@ const express = require(`express`);
 const {
   register,
   login,
+  logout,
   getLoggedInUser,
   resetPasswordRequest,
   resetPassword,
@@ -17,6 +18,7 @@ const { protect } = require(`../middleware/auth`);
 router.get(`/me`, protect, getLoggedInUser);
 router.post(`/register`, register);
 router.post(`/login`, login);
+router.post(`/logout`, protect, logout);
 router.post(`/update-user-data`, protect, updateUserData);
 router.post(`/reset-password`, resetPasswordRequest);
 router.put(`/reset-password/:resetToken`, resetPassword);
