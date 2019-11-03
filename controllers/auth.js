@@ -64,6 +64,28 @@ exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc        Reset password
+// @route       POST /api/v1/auth/reset-password
+// @access      Public
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(
+      new ErrorResponse(`No user associated with email ${req.body.email}`, 404)
+    );
+  }
+
+  const passwordResetToken = user.getResetPasswordToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 /**
  * Helper functions
  */
