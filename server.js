@@ -12,6 +12,7 @@ const helmet = require(`helmet`);
 const xssClean = require(`xss-clean`);
 const hpp = require(`hpp`);
 const rateLimit = require(`express-rate-limit`);
+const cors = require(`cors`);
 //Load ENV variables
 dotenv.config({ path: `./config/config.env` });
 
@@ -65,6 +66,10 @@ const rateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 100,
 });
+
+// Setup CORS so API is available from different domains
+
+app.use(cors);
 
 app.use(rateLimiter);
 
