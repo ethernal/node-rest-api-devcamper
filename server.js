@@ -10,6 +10,7 @@ const cookieParser = require(`cookie-parser`);
 const mongoSanitize = require(`express-mongo-sanitize`);
 const helmet = require(`helmet`);
 const xssClean = require(`xss-clean`);
+const hpp = require(`hpp`);
 //Load ENV variables
 dotenv.config({ path: `./config/config.env` });
 
@@ -49,6 +50,13 @@ app.use(helmet());
 
 // Prevent XSS
 app.use(xssClean());
+
+// Prevent parameter pollution
+app.use(hpp());
+
+/**
+ * END of security enhancements
+ */
 
 //Set static folder
 app.use(express.static(path.join(__dirname, `public`)));
