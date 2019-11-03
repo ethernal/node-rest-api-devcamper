@@ -82,7 +82,7 @@ exports.createReview = asyncHandler(async (req, res, next) => {
 // @route       PUT /api/v1/reviews/:id
 // @access      Private
 exports.updateReview = asyncHandler(async (req, res, next) => {
-  const review = await Review.findById(req.params.id);
+  let review = await Review.findById(req.params.id);
 
   if (!review) {
     return next(
@@ -93,7 +93,21 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await review.update(req.body);
+  // Only allow Course owner to update the Course
+  // course.user is an ObjectID so we need to parse it to string for comparison
+  if (review.user.toString() != req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} is NOT authorized to update a review ${req.params.id}. Only an owner ${review.user} of the Review can modify it`,
+        401
+      )
+    );
+  }
+
+  review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   return res.status(200).json({
     success: true,
