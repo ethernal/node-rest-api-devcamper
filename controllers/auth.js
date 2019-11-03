@@ -66,6 +66,26 @@ exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc        Update user data
+// @route       GET /api/v1/auth/update-user-data
+// @access      Private
+exports.updateUserData = asyncHandler(async (req, res, next) => {
+  const allowedFields = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findByIdAndUpdate(req.user.id, allowedFields, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 // @desc        Send password reset email with generated token
 // @route       POST /api/v1/auth/reset-password
 // @access      Public
@@ -145,6 +165,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.password = req.body.password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
+  // in case of error in save (ex. non compliant password) the token will NOT get set to undefined and request can be repeated
   await user.save();
 
   sendTokenResponse(user, 200, res);
