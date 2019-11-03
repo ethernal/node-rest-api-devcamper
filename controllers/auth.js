@@ -86,6 +86,23 @@ exports.updateUserData = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc        Update user's password
+// @route       PUT /api/v1/auth/update-user-password
+// @access      Private
+exports.updateUserPassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("+password");
+
+  if (!(await user.validatePassword(req.body.currentPassword))) {
+    return next(new ErrorResponse(`Password is incorrect`, 401));
+  }
+
+  user.password = req.body.newPassword;
+
+  await user.save();
+
+  sendTokenResponse(user, 200, res);
+});
+
 // @desc        Send password reset email with generated token
 // @route       POST /api/v1/auth/reset-password
 // @access      Public
