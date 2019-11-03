@@ -4,6 +4,7 @@ const {
   register,
   login,
   getLoggedInUser,
+  resetPasswordRequest,
   resetPassword,
 } = require(`../controllers/auth`);
 
@@ -14,6 +15,7 @@ const { protect } = require(`../middleware/auth`);
 router.post(`/register`, register);
 router.post(`/login`, login);
 router.get(`/me`, protect, getLoggedInUser);
-router.get(`/reset-password`, protect, resetPassword);
+router.post(`/reset-password`, resetPasswordRequest);
+router.put(`/reset-password/:resetToken`, resetPassword);
 
 module.exports = router;
