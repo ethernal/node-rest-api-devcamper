@@ -33,4 +33,7 @@ const ReviewSchema = new mongoose.Schema({
   },
 });
 
+// Allow only one Review per Bootcamp for user
+ReviewSchema.index({ bootcamp: 1, user: 1 }, { unique: true });
+
 module.exports = mongoose.model(`Review`, ReviewSchema);

@@ -53,12 +53,26 @@ exports.getReview = asyncHandler(async (req, res, next) => {
 
 // @desc        Create review
 // @route       POST /api/v1/bootcamps/:bootcampId/reviews
-// @access      Public
+// @access      Private
 exports.createReview = asyncHandler(async (req, res, next) => {
+  // Populate body of the request with relational data that it requires
+  req.body.bootcamp = req.params.bootcampId;
+  // This (req.user) will be provided by middleware
+  req.body.user = req.user.id;
+
+  const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+
+  if (!bootcamp) {
+    return next(
+      new ErrorResponse(`No bootcamp found with id ${req.params.bootcampId}`)
+    );
+  }
+
   const review = await Review.create(req.body);
 
-  return res.status(200).json({
+  return res.status(201).json({
     success: true,
+    message: "Added review to a bootcamp",
     count: review.length,
     data: review,
   });

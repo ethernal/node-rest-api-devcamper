@@ -29,7 +29,7 @@ router
     }),
     getReviews
   )
-  .post(createReview);
+  .post(protect, authorize(`user`, `admin`), createReview);
 
 router
   .route(`/:id`)
