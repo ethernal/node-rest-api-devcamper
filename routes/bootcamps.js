@@ -17,12 +17,17 @@ const advancedResults = require(`../middleware/advancedResults`);
 
 // Include other resource routers
 const courseRouter = require(`./courses`);
+const reviewRouter = require(`./reviews`);
 
 const router = express.Router();
 
 // Re-route into other resource routers
 // Forces `:/bootcampId/courses` route to be handled by courseRouter
 router.use(`/:bootcampId/courses`, courseRouter);
+
+// Re-route into other resource routers
+// Forces `:/bootcampId/courses` route to be handled by courseRouter
+router.use(`/:bootcampId/reviews`, reviewRouter);
 
 router.route(`/radius/:zipcode/:distance`).get(getBootcampsInRadius);
 
