@@ -93,7 +93,7 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // Only allow Course owner to update the Course
+  // Only allow review owner to update the review
   // course.user is an ObjectID so we need to parse it to string for comparison
   if (review.user.toString() != req.user.id && req.user.role !== "admin") {
     return next(
@@ -120,23 +120,33 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
 // @route       DELETE /api/v1/reviews/:id
 // @access      Private
 exports.deleteReview = asyncHandler(async (req, res, next) => {
-  const review = await Review.findById(req.params.id);
+  let review = await Review.findById(req.params.id);
 
   if (!review) {
-    next(
+    return next(
       new ErrorResponse(
-        `Not found. Unable to delete review ${req.params.id}.`,
+        `Not found. Unable to update review ${req.params.id}.`,
         404
       )
     );
   }
 
-  review.remove();
+  // Only allow Review owner to update the Course
+  // course.user is an ObjectID so we need to parse it to string for comparison
+  if (review.user.toString() != req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} is NOT authorized to DELETE a review ${req.params.id}. Only an owner ${review.user} of the Review can modify it`,
+        401
+      )
+    );
+  }
+
+  await review.remove();
 
   return res.status(200).json({
     success: true,
-    message: `Deleted review ${req.params.id}`,
-    count: review.length,
+    message: `DELETED review ${req.params.id} from database.`,
     data: review,
   });
 });
