@@ -4,13 +4,13 @@ const ErrorResponse = require(`../utils/errorResponse`);
 const User = require(`../models/User`);
 const sendEmail = require("../utils/sendEmail");
 
-// @desc        Register user
+// @desc        Register new user
 // @route       POST /api/v1/auth/register
 // @access      Public
 exports.register = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
-  // create user
+  // Create user
   const user = await User.create({
     name,
     email,
@@ -18,11 +18,12 @@ exports.register = asyncHandler(async (req, res, next) => {
     role,
   });
 
-  // create token
+  // Create token
   const token = user.getSignedToken();
 
   res.status(200).json({
     success: true,
+    message: `User ${user.name} registered`,
     token,
   });
 });
@@ -38,8 +39,10 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide email and password`, 400));
   }
 
-  // check if user exists
-  // because in the model password has a property `select: false` here we must explicitly set it so that it is returned from the model by using `.select' method and adding `+password` as filed name that MUST be returned
+  // Check if user exists
+  // because in the model password has a property `select: false` we must explicitly set it here
+  // so that it is returned from the model by using`.select' method
+  // adding `+ password` as filed name indicates that the filed MUST be returned by the query
   const user = await User.findOne({ email }).select(`+password`);
   if (!user) {
     return next(new ErrorResponse(`Invalid credentials`, 401));
@@ -64,7 +67,7 @@ exports.logout = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: `Logging out user successful`,
+    message: `Logging out user successful. Cookie cleared.`,
     data: {},
   });
 });
@@ -77,6 +80,7 @@ exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Current user data sent`,
     data: user,
   });
 });
@@ -97,6 +101,7 @@ exports.updateUserData = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `User data updated`,
     data: user,
   });
 });
@@ -126,16 +131,18 @@ exports.resetPasswordRequest = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ErrorResponse(`No user associated with email ${req.body.email}`, 404)
+      new ErrorResponse(
+        `No user is associated with email ${req.body.email}`,
+        404
+      )
     );
   }
 
-  const passwordResetToken = user.getResetPasswordToken();
+  const passwordResetToken = user.generateAndSetResetPasswordToken();
 
   await user.save({ validateBeforeSave: false });
 
   // Create URL for Password Reset
-
   const resetURL = `${req.protocol}://${req.get(
     "host"
   )}/api/v1/auth/reset-password/${passwordResetToken}`;
@@ -150,7 +157,7 @@ exports.resetPasswordRequest = asyncHandler(async (req, res, next) => {
     });
     res.status(200).json({
       success: true,
-      message: "Email sent",
+      message: "Email with password reset token sent",
       data: user,
     });
   } catch (error) {
@@ -193,11 +200,12 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
   // Set new password
   // it will be hashed automatically by the middleware
-  // beware that it will also be sent as plain text if HTTPS is not used
+  // be aware that it will also be sent as plain text if HTTPS is not used
   user.password = req.body.password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
-  // in case of error in save (ex. non compliant password) the token will NOT get set to undefined and request can be repeated
+  // In case of error in save (ex. non compliant password)
+  // token will NOT get set to undefined and request can be repeated
   await user.save();
 
   sendTokenResponse(user, 200, res);
@@ -208,15 +216,17 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
  */
 
 // Get token from the model, create a cookie and send response
-
 const sendTokenResponse = (user, statusCode, res) => {
-  // create token
+  // Create token
   const token = user.getSignedToken();
 
+  // Set cookie options
   const cookieOptions = {
+    // Set expiration date to X days from now
     expires: new Date(
-      Date.now() + process.env.TOKEN_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + process.env.TOKEN_COOKIE_EXPIRE * (24 * 60 * 60 * 1000)
     ),
+    // Set as session cookie - only available to HTTP protocol sessions
     httpOnly: true,
   };
 
@@ -226,9 +236,11 @@ const sendTokenResponse = (user, statusCode, res) => {
   }
   res
     .status(statusCode)
+    // Create a cookie with token key set to token value
     .cookie("token", token, cookieOptions)
     .json({
       success: true,
+      message: `Cookie setup and token returned`,
       token,
     });
 };

@@ -13,7 +13,8 @@ const xssClean = require(`xss-clean`);
 const hpp = require(`hpp`);
 const rateLimit = require(`express-rate-limit`);
 const cors = require(`cors`);
-//Load ENV variables
+
+// Load ENV variables
 dotenv.config({ path: `./config/config.env` });
 
 // Connect to the Database
@@ -50,7 +51,7 @@ app.use(mongoSanitize());
 // Set security headers
 app.use(helmet());
 
-// Prevent XSS
+// Prevent XSS attachs
 app.use(xssClean());
 
 // Prevent parameter pollution
@@ -60,20 +61,25 @@ app.use(hpp());
  * END of security enhancements
  */
 
-// Setup API rate limit
+// Setup CORS so API is available from different domains
+// If server is not responding first check if CORS options are set properly
+const corsOptions = {
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
+app.use(cors(corsOptions));
+// Enable CORS Pre-Flight [https://github.com/expressjs/cors#enabling-cors-pre-flight] important for DELETE routes
+app.options(`*`, cors()); // include before other routes
+
+// Setup API rate limit
 const rateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 100,
+  max: 600, // 1 req/second
 });
-
-// Setup CORS so API is available from different domains
-
-app.use(cors);
 
 app.use(rateLimiter);
 
-//Set static folder
+// Set static folder
 app.use(express.static(path.join(__dirname, `public`)));
 
 // Mount routes

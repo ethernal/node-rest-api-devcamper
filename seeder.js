@@ -2,12 +2,16 @@ const fs = require("fs");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
+// Load environmental variables
 dotenv.config({ path: `./config/config.env` });
+
+// Load models
 const Bootcamp = require("./models/Bootcamp");
 const Course = require("./models/Course");
 const User = require("./models/User");
 const Review = require("./models/Review");
 
+// Use recommended options for MongoDB
 const dbConnectionOptions = {
   connectTimeoutMS: 1000,
   useNewUrlParser: true,
@@ -18,7 +22,7 @@ const dbConnectionOptions = {
     user: process.env.MONGO_USER,
     password: process.env.MONGO_PASSWORD,
   },
-  authSource: "admin",
+  authSource: process.env.MONGO_AUTH_DB,
 };
 
 mongoose.connect(process.env.MONGO_URI, dbConnectionOptions);

@@ -12,7 +12,7 @@ const connectDB = async () => {
       user: process.env.MONGO_USER,
       password: process.env.MONGO_PASSWORD,
     },
-    authSource: "admin",
+    authSource: process.env.MONGO_AUTH_DB,
   };
 
   const connection = await mongoose.connect(

@@ -52,20 +52,22 @@ UserSchema.pre("save", async function(next) {
 });
 
 // Sign TOKEN and return
-
 UserSchema.methods.getSignedToken = function() {
   return jwt.sign({ id: this._id }, process.env.TOKEN_SECRET, {
     expiresIn: process.env.TOKEN_EXPIRE,
   });
 };
 
-// Validate user entered password to haashed password in the database
+// Validate user entered password to hashed password in the database
 UserSchema.methods.validatePassword = async function(submittedPassword) {
   return await bcrypt.compare(submittedPassword, this.password);
 };
 
 // Generate and hash password token
-UserSchema.methods.getResetPasswordToken = function() {
+/**
+ * @desc This function generates and sets (DOES NOT SAVE) password reset token for user
+ */
+UserSchema.methods.generateAndSetResetPasswordToken = function() {
   // Generate token
   const resetToken = crypto.randomBytes(20).toString("hex");
   // Hash token and setup resetPasswordToken field

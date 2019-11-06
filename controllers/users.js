@@ -19,6 +19,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Found user ${user.name} with ID ${user._id}`,
     data: user,
   });
 });
@@ -31,6 +32,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
+    message: `Created user ${user.name} with ID ${user._id}`,
     data: user,
   });
 });
@@ -46,6 +48,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Updated user ${user.name} with ID ${user._id}`,
     data: user,
   });
 });
@@ -58,6 +61,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Deleted user ${user.name} with ID ${user._id}`,
     data: user,
   });
 });

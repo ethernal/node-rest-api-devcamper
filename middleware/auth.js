@@ -3,7 +3,7 @@ const asyncHandler = require(`./async`);
 const ErrorResponse = require("../utils/errorResponse");
 const User = require("../models/User");
 
-// Protect routes
+// Protect routes and store user in req.user if token is valid
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
 
@@ -14,7 +14,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
     // Set token from Headers
     token = req.headers.authorization.replace("Bearer ", "");
   }
-  // Set token from Cookie
+  // Set token from Cookie if it was not sent in the Headers
   else if (req.cookies.token) {
     token = req.cookies.token;
   }
@@ -33,7 +33,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     console.log(decoded);
-    // logged in user
+    // Store logged in user data in req.user so it is available to other functions
     req.user = await User.findById(decoded.id);
     next();
   } catch (err) {
@@ -47,7 +47,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
 });
 
 // Grant access to specific roles
-
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

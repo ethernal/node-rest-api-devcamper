@@ -3,30 +3,25 @@ const Bootcamp = require(`../models/Bootcamp`);
 const asyncHandler = require(`../middleware/async`);
 const ErrorResponse = require(`../utils/errorResponse`);
 
-// @desc        Get all courses
+// @desc        Get all courses associated with a bootcamp (ID) or all available courses in all bootcamps
 // @route       GET /api/v1/courses
 // @route       GET /api/v1/bootcamps/:bootcampId/courses
 // @access      Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
+  // When asking for all courses in a bootcamp limit results to Courses associated with bootcampId
+  // else return all Courses with pagination etc.
   if (req.params.bootcampId) {
     const courses = await Course.find({ bootcamp: req.params.bootcampId });
 
     return res.status(200).json({
       success: true,
+      message: `Found ${courses.length} courses for bootcamp ${req.params.bootcampId}`,
       count: courses.length,
       data: courses,
     });
   } else {
     res.status(200).json(res.advancedResults);
   }
-
-  const courses = await query;
-
-  res.status(200).json({
-    success: true,
-    count: courses.length,
-    data: courses,
-  });
 });
 
 // @desc        Get a single courses
@@ -46,12 +41,13 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Found course with ID: ${req.params.id}`,
     count: 1,
     data: course,
   });
 });
 
-// @desc        Add a single course
+// @desc        Add a single course to a specific bootcamp (ID), must be an owner and publisher
 // @route       POST /api/v1/bootcamps/:bootcampId/courses
 // @access      Private
 exports.addCourse = asyncHandler(async (req, res, next) => {
@@ -87,6 +83,7 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
+    message: `Created new Course ${req.body.name} with ID: ${course._id}`,
     count: afterCreate,
     data: course,
   });
@@ -123,6 +120,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `Updated course ${req.params.id}`,
     data: course,
   });
 });
@@ -155,6 +153,7 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: `DELETED a course with ID: ${req.params.id}`,
     data: course,
   });
 });

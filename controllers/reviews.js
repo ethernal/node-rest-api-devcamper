@@ -26,10 +26,11 @@ exports.getReviews = asyncHandler(async (req, res, next) => {
     success: true,
     count: reviews.length,
     data: reviews,
+    message: `Found ${reviews.length} reviews in the database`,
   });
 });
 
-// @desc        Get single review
+// @desc        Get a single review
 // @route       GET /api/v1/reviews/:id
 // @access      Public
 exports.getReview = asyncHandler(async (req, res, next) => {
@@ -48,10 +49,11 @@ exports.getReview = asyncHandler(async (req, res, next) => {
     success: true,
     count: review.length,
     data: review,
+    message: `Found review ${req.params.id}`,
   });
 });
 
-// @desc        Create review
+// @desc        Create a review
 // @route       POST /api/v1/bootcamps/:bootcampId/reviews
 // @access      Private
 exports.createReview = asyncHandler(async (req, res, next) => {
@@ -72,7 +74,7 @@ exports.createReview = asyncHandler(async (req, res, next) => {
 
   return res.status(201).json({
     success: true,
-    message: "Added review to a bootcamp",
+    message: `Added review ${review._id} to a bootcamp`,
     count: review.length,
     data: review,
   });
@@ -87,7 +89,7 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
   if (!review) {
     return next(
       new ErrorResponse(
-        `Not found. Unable to update review ${req.params.id}.`,
+        `Not found. Unable to update review ${req.params.id}`,
         404
       )
     );
@@ -111,12 +113,13 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
+    message: `Updated review ${req.params.id}`,
     count: review.length,
     data: review,
   });
 });
 
-// @desc        DELETE review
+// @desc        DELETE a review
 // @route       DELETE /api/v1/reviews/:id
 // @access      Private
 exports.deleteReview = asyncHandler(async (req, res, next) => {
@@ -146,7 +149,7 @@ exports.deleteReview = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
-    message: `DELETED review ${req.params.id} from database.`,
+    message: `DELETED review ${req.params.id} from database`,
     data: review,
   });
 });
