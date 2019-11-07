@@ -1,14 +1,14 @@
 const advancedResults = (model, populate) => async (req, res, next) => {
+  // This will be used to keep track of built query
   let query;
 
   const requestQuery = { ...req.query };
 
-  //Exclude fields from query
+  // Exclude fields from query that have special meaning (ex. are used in querying, pagination, filtering data)
   const removeFields = ["select", "sort", "page", "limit"];
-
   removeFields.forEach(param => delete requestQuery[param]);
 
-  //Create Query String from req.query JSON object to manipulate it later
+  // Create Query String from req.query JSON object to manipulate it later
   let queryString = JSON.stringify(requestQuery);
 
   // Regexp matches globally (`/g` - does not stop processing at first instance) words (\b \b - word boundary) from list of (gt, gte...)
@@ -18,13 +18,13 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     match => `$${match}`
   );
 
-  //TODO: read more on populate
-  // Add the field courses to all  models.
+  // Add the field courses to all models.
   // If there are no courses in virtual fields the property will be empty.
   query = model.find(JSON.parse(queryString));
 
-  // Select fields only if select was passed to the query (note that we removed select from a copy object but not from the oryginal one)
+  // Select fields only if `select` was passed to the query (note that we removed select from a **copy** of the request object but not from the original one)
   if (req.query.select) {
+    // Mongoose select accepts fields separated by space
     const fields = req.query.select.replace(",", " ");
     // Add Mongoose select fields to the query that will be sent to the DB, this will return only the selected fields
     query = query.select(fields);
@@ -35,6 +35,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     const sortBy = req.query.sort.replace(",", " ");
     query = query.sort(sortBy);
   } else {
+    // Sort in DESC order by default
     query = query.sort("-createdAt");
   }
 
@@ -52,10 +53,11 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     query = query.populate(populate);
   }
 
-  // Execurte Query
+  // Execute Query and store the results
   const results = await query;
 
-  // Pagination result
+  // Paginate results based on page size
+  // and create prev and next properties
   const pagination = {};
   if (endIndex < total) {
     pagination.next = {
@@ -71,6 +73,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     };
   }
 
+  // Return data with filters, pagination and sorting
   res.advancedResults = {
     success: true,
     count: results.length,

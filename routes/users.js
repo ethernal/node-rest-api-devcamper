@@ -14,7 +14,7 @@ const router = express.Router();
 const advancedResults = require(`../middleware/advancedResults`);
 const { protect, authorize } = require(`../middleware/auth`);
 
-// this will make router use protect and admin authorization for all routes below
+// This will make router use protect and admin authorization for all routes below
 router.use(protect);
 router.use(authorize(`admin`));
 

@@ -22,6 +22,7 @@ const router = express.Router({ mergeParams: true });
 router
   .route(`/`)
   .get(
+    // Populate Course with Bootcamp name and description
     advancedResults(Course, {
       path: `bootcamp`,
       select: `name description`,

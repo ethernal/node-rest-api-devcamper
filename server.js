@@ -27,8 +27,13 @@ const auth = require(`./routes/auth`);
 const users = require(`./routes/users`);
 const reviews = require(`./routes/reviews`);
 
+// Create application
 const app = express();
 
+/**
+ * Apply / Use middleware
+ * :bomb: Middleware is applied in the same order it is initialized with app.use
+ */
 // Body parser - allows to log request body data to the console from the server so we do not get undefined when invoking: console.log(req.body);
 app.use(express.json());
 

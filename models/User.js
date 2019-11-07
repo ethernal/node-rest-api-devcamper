@@ -38,14 +38,14 @@ const UserSchema = new mongoose.Schema({
 
 // Encrypt password using bcrypt
 UserSchema.pre("save", async function(next) {
-  // this can run when we save user data ex. when we create a reset password token but...
+  // This can run when we save user data ex. when we create a reset password token but...
   // if password was not modified move to next
   // and do not try to encrypt the password
   if (!this.isModified("password")) {
     next();
   }
 
-  // encrypt the password on user save / creation but only if password field was modified.
+  // Encrypt the password on user save / creation but only if password field was modified.
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();

@@ -16,7 +16,7 @@ const BootcampSchema = new mongoose.Schema(
     slug: String,
     description: {
       type: String,
-      required: [true, `Please add a description`],
+      required: [true, `Please add a description of a Bootcamp`],
       maxlength: [500, `Description can not be more than 500 characters`],
     },
     website: {
@@ -34,12 +34,12 @@ const BootcampSchema = new mongoose.Schema(
       type: String,
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        `Please add a valid email`,
+        `Please add a valid email address`,
       ],
     },
     address: {
       type: String,
-      required: [true, `Please add an address`],
+      required: [true, `Please add an address of a Bootcamp`],
     },
     location: {
       // GeoJSON Point
@@ -74,7 +74,7 @@ const BootcampSchema = new mongoose.Schema(
     averageRating: {
       type: Number,
       min: [1, `Rating must be at least 1`],
-      max: [10, `Rating must can not be more than 10`],
+      max: [10, `Rating cannot be more than 10`],
     },
     averageCost: Number,
     photo: {
@@ -108,13 +108,15 @@ const BootcampSchema = new mongoose.Schema(
     },
   },
   {
+    // Allow virtual = computed properties (https://mongoosejs.com/docs/tutorials/virtuals.html)
+    // :bomb: these properties are not stored in MongoDB so they cannot be queried
+    // https://mongoosejs.com/docs/tutorials/virtuals.html#virtuals-in-json
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
 // You need to use function keyword instead of arrow functions as `function` has different scope that is needed for this kind of middleware.
-
 BootcampSchema.pre(`save`, function(next) {
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -137,7 +139,8 @@ BootcampSchema.pre("save", async function(next) {
         country: loc[0].countryCode,
       };
 
-      // Do not save address in DB
+      // If you do not want to save address in DB uncomment the following line
+      // I leave it here as Proxy interferes with external services and it is not possible ot retrieve location data
       //this.address = undefined;
 
       next();
@@ -152,7 +155,7 @@ BootcampSchema.pre("save", async function(next) {
     });
 });
 
-// Cascade delete courses when a bootcamp is deleted
+// Cascade delete all associated courses when a bootcamp is deleted
 BootcampSchema.pre("remove", async function(next) {
   console.log(
     `Courses are being removed from bootcamp ${this._id}`.red.inverse
@@ -160,8 +163,8 @@ BootcampSchema.pre("remove", async function(next) {
   await this.model("Course").deleteMany({ bootcamp: this._id });
   next();
 });
-// Reverse populate with virtuals
 
+// Reverse populate with virtuals
 // The virtual field will be called `courses`
 BootcampSchema.virtual("courses", {
   ref: "Course", // reference `Course` Model

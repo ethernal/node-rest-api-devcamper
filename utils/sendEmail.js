@@ -9,7 +9,7 @@ const sendEmail = async options => {
     SMTP_EMAIL_FROM,
     SMTP_EMAIL_NAME,
   } = process.env;
-  // create reusable transporter object using the default SMTP transport
+  // Create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
@@ -20,7 +20,7 @@ const sendEmail = async options => {
     },
   });
 
-  // send mail with defined transport object
+  // Prepare message to be sent
   const message = {
     from: `"${SMTP_EMAIL_NAME}" <${SMTP_EMAIL_FROM}>`, // sender address
     to: options.receivers, // list of receivers
@@ -29,8 +29,8 @@ const sendEmail = async options => {
     html: options.bodyHTML, // html body
   };
 
+  // Send mail with already configured transport
   const info = await transporter.sendMail(message);
-
   console.log("Message sent: %s", info.messageId);
 };
 

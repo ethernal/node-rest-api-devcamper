@@ -46,7 +46,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Grant access to specific roles
+// Grant access for specific roles to selected routes (place this middleware in routes)
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

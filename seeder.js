@@ -44,7 +44,7 @@ const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/reviews.json`, `utf-8`)
 );
 
-// Import into DB
+// Import data into DB
 
 const importData = async () => {
   try {
@@ -62,6 +62,9 @@ const importData = async () => {
     await Review.create(reviews);
     console.log(`Reviews imported`.green.inverse);
 
+    // Sometimes this leads to Mongo Server pool was destroyed error
+    // I assume this is due to the MongoDB middleware/functions that are being run pre/post save
+    // and while it happens we issue a disconnect, but I am uncertain as it is not happening all the time
     await mongoose.disconnect();
     console.log(`MongoDB disconnected.`.green.inverse);
     process.exit();

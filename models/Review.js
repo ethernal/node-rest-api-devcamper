@@ -9,7 +9,7 @@ const ReviewSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: [true, `Please add some text`],
+    required: [true, `Please add contents of the review`],
   },
   rating: {
     type: Number,
@@ -33,11 +33,16 @@ const ReviewSchema = new mongoose.Schema({
   },
 });
 
-// Allow only one Review per Bootcamp for user
+// Allow only one Review per Bootcamp for user using DB index
+// this is different than verfying in code and in my opinion less flexible
+// but shows a different way how to approach such problem/spec.
 ReviewSchema.index({ bootcamp: 1, user: 1 }, { unique: true });
 
 // Define a static function in a schema for Average Cost
-ReviewSchema.statics.getAverageRating = async function(bootcampId) {
+ReviewSchema.statics.setAverageRating = async function(bootcampId) {
+  // Find all bootcamps with specific ID
+  // Creating a group with
+  // calculated averege rating based on `rating` value in each one using $avg MongoDB function
   const aggregateObject = await this.aggregate([
     {
       $match: { bootcamp: bootcampId },
@@ -50,6 +55,7 @@ ReviewSchema.statics.getAverageRating = async function(bootcampId) {
     },
   ]);
   try {
+    // Save average rating as models property
     await this.model("Bootcamp").findByIdAndUpdate(bootcampId, {
       averageRating: aggregateObject[0].averageRating,
     });
@@ -58,13 +64,12 @@ ReviewSchema.statics.getAverageRating = async function(bootcampId) {
   }
 };
 
-// Call getAverageRating after save
-
+// Call setAverageRating after save
 ReviewSchema.post(`save`, function() {
-  this.constructor.getAverageRating(this.bootcamp);
+  this.constructor.setAverageRating(this.bootcamp);
 });
 ReviewSchema.pre(`remove`, function() {
-  this.constructor.getAverageRating(this.bootcamp);
+  this.constructor.setAverageRating(this.bootcamp);
 });
 
 module.exports = mongoose.model(`Review`, ReviewSchema);

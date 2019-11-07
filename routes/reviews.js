@@ -9,20 +9,21 @@ const {
   deleteReview,
 } = require(`../controllers/reviews`);
 
-// mergeParams:true is required if re-routing is supposed to work properly
+// MergeParams:true is required if re-routing is supposed to work properly
 // it merges the URL parameters
 const router = express.Router({ mergeParams: true });
 
-// must be added if you want to use advanced reviews in routes
+// Must be added if you want to use advanced reviews in routes
 const advancedResults = require(`../middleware/advancedResults`);
 const { protect, authorize } = require(`../middleware/auth`);
 
-// these routes are re-routed from Bootcamp router so their route is:
-// `/bootcamps/:bootcampId/courses/:id`
-// courses in the above comes from base route for this router
+// These routes are re-routed from Bootcamp router so their route is:
+// `/bootcamps/:bootcampId/reviews/[:id]`
+// reviews in the above comes from base route for this router
 router
   .route(`/`)
   .get(
+    // Populate Review with Bootcamp name and description
     advancedResults(Review, {
       path: `bootcamp`,
       select: `name description`,
